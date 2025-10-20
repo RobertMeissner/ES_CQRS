@@ -1,33 +1,46 @@
 import {RestockCommandHandler} from "./index";
-import {RestockOrdered} from "./domain/Event";
-import {RestockOrder} from "./domain/Command";
+import {EVENTS, RestockOrdered} from "./domain/Event";
+import {COMMANDS, RestockOrder} from "./domain/Command";
 
 describe("restocker", () => {
-    let _history: Event[] = []
+    let _history: EVENTS[] = []
+    let _publish: EVENTS[] = []
 
     beforeEach(() => {
         _history = []
+        _publish = []
     })
 
-    function Given(events: Event[]) {
+    function Given(events: EVENTS[]) {
         _history = events
     }
 
+    function When(command: COMMANDS) {
+
+        const command_Handlers = new RestockCommandHandler(_history)
+        command_Handlers.handle(command)
+        _publish = command_Handlers._publish
+    }
+
+    function Then(expected_events: EVENTS[]) {
+        expect(_publish).toMatchObject(expected_events)
+    }
+
     test("Emits RestockOrdered when asked to restock", () => {
-        const command_Handlers = new RestockCommandHandler([])
-        command_Handlers.handle(new RestockOrder(100))
-        expect(command_Handlers._publish).toMatchObject([{type: "restock_ordered"}]);
+        Given([])
+        When(new RestockOrder(100))
+        Then([new RestockOrdered(100)])
     });
     test("Emits no RestockOrdered when enough stock is available", () => {
-        const history = [new RestockOrdered(100), new RestockOrdered(50)]
-        const command_Handlers = new RestockCommandHandler(history)
-        command_Handlers.handle(new RestockOrder(50));
-        expect(command_Handlers._publish).toEqual([])
+
+        Given([new RestockOrdered(100), new RestockOrdered(50)])
+        When(new RestockOrder(50))
+        Then([])
     })
     test("Emits RestockOrdered when just enough stock is available", () => {
-        const history = [new RestockOrdered(100)]
-        const command_Handlers = new RestockCommandHandler(history)
-        command_Handlers.handle(new RestockOrder(50));
-        expect(command_Handlers._publish).toMatchObject([{type: "restock_ordered", "quantity": 50}])
+
+        Given([new RestockOrdered(100)])
+        When(new RestockOrder(50))
+        Then([new RestockOrdered(50)])
     })
 });
