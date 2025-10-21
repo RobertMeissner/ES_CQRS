@@ -26,3 +26,5 @@ yarn-error.log*
 python.egg-info
 .venv
 .approval_tests_temp
+
+apps/rust/target

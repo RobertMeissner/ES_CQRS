@@ -1,4 +1,4 @@
-import {COMMANDS} from "../domain/Command";
+import {COMMANDS} from "./Command";
 
 export abstract class CommandHandler {
 
