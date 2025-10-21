@@ -62,7 +62,7 @@ describe("RestockSaga", ()=> {
 
         const eventHandler = new RestockSagaEventHandler(_history)
         eventHandler.handle(event)
-        _publish = eventHandler._publish
+        _publish = eventHandler._emit
     }
 
     function Then(expected_commands: COMMANDS[]) {
@@ -79,5 +79,38 @@ describe("RestockSaga", ()=> {
         When(new ThresholdReached(35))
         Then([new RestockOrder(345)])
 
+    })
+})
+describe("ThresholdReached to RestockOrdered", ()=> {
+    let _history: EVENTS[] = []
+    let _publish: EVENTS[] = []
+
+    beforeEach(() => {
+        _history = []
+        _publish = []
+    })
+
+    function Given(events: EVENTS[]) {
+        _history = events
+    }
+
+    function Then(expected_events: EVENTS[]) {
+        expect(_publish).toMatchObject(expected_events)
+    }
+
+    function When(event: EVENTS) {
+
+        const eventHandler = new RestockSagaEventHandler(_history)
+        const commandHandler = new RestockCommandHandler(_history)
+        eventHandler.handle(event)
+        commandHandler.handle(eventHandler._emit)
+        _publish = commandHandler._publish
+    }
+
+    test("Emits RestockOrdered when threshold is reached", () => {
+
+        Given([new CapacityDefined(380)])
+        When(new ThresholdReached(35))
+        Then([new RestockOrdered(345)])
     })
 })

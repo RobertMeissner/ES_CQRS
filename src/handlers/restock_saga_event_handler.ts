@@ -5,11 +5,11 @@ import {RestockSaga, RestockSagaState} from "../saga/RestockSaga";
 
 export class RestockSagaEventHandler implements EventHandler {
     private _history: EVENTS[];
-    public _publish: COMMANDS[];
+    public _emit: COMMANDS[];
 
     constructor(events: EVENTS[]) {
         this._history = events
-        this._publish = []
+        this._emit = []
     }
 
     handle(event: EVENTS) {
@@ -17,8 +17,8 @@ export class RestockSagaEventHandler implements EventHandler {
             const state = new RestockSagaState(this._history)
             const restockSaga = new RestockSaga(state);
             const commands = restockSaga.handle(event)
-            this._publish.push(...commands)
+            this._emit.push(...commands)
         }
-        this._publish.concat([])
+        this._emit.concat([])
     }
 }

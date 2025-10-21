@@ -25,6 +25,8 @@ export class RestockSaga implements Saga {
 
     handle(event: EVENTS): COMMANDS[] {
         if (event instanceof ThresholdReached) {
+            // this.state.expeddreorder =
+            // emit
             return [new RestockOrder(this.state.capacity - event.quantity)];
         }
         return []
