@@ -69,13 +69,13 @@ describe("RestockSaga", ()=> {
         expect(_publish).toMatchObject(expected_commands)
     }
     test("Emits OrderRestock when threshold is reached", () => {
-        Given([new CapacityDefined(100)])
+        Given([new CapacityDefined("dummy",100)])
         When(new ThresholdReached(20))
         Then([new RestockOrder(80)])
 
     })
     test("Emits OrderRestock when other threshold is reached", () => {
-        Given([new CapacityDefined(380)])
+        Given([new CapacityDefined("dummy", 380)])
         When(new ThresholdReached(35))
         Then([new RestockOrder(345)])
 
@@ -103,13 +103,13 @@ describe("ThresholdReached to RestockOrdered", ()=> {
         const eventHandler = new RestockSagaEventHandler(_history)
         const commandHandler = new RestockCommandHandler(_history)
         eventHandler.handle(event)
-        commandHandler.handle(eventHandler._emit)
+        commandHandler.handle(eventHandler._emit[0])
         _publish = commandHandler._publish
     }
 
     test("Emits RestockOrdered when threshold is reached", () => {
 
-        Given([new CapacityDefined(380)])
+        Given([new CapacityDefined("dummy",380)])
         When(new ThresholdReached(35))
         Then([new RestockOrdered(345)])
     })

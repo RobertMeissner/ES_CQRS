@@ -31,7 +31,7 @@ export class CapacityDefined extends Event {
     static type: string = "capacity_defined";
     id = "capacity_defined"
 
-    constructor(public capacity: number) {
+    constructor(public product_id: string, public capacity: number) {
         super(new Date());
         this.type = CapacityDefined.type;
     }
