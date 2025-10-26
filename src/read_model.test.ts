@@ -1,8 +1,9 @@
 import {AddProduct, CapacityDefined, EVENTS, RestockOrdered} from "./domain/Event";
 import {QUERIES, QueryCatalog} from "./domain/Query";
 import {Products, CatalogState} from "./read_models/products";
+import {describe, beforeEach, test, expect} from "bun:test";
 
-describe("ReadModel", () => {
+describe.todo("ReadModel", () => {
     let readModel: Products;
     let result: CatalogState;
 

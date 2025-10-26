@@ -28,3 +28,4 @@ python.egg-info
 .approval_tests_temp
 
 apps/rust/target
+dist/

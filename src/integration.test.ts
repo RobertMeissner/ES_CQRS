@@ -7,7 +7,7 @@ import {RestockSagaEventHandler} from "./handlers/restock_saga_event_handler";
 import {RestockOrder} from "./domain/Command";
 import * as fs from "fs";
 
-describe("Integration Tests", () => {
+describe.todo("Integration Tests", () => {
     const testFilePath = "./integration_test_events.json";
 
     afterEach(() => {

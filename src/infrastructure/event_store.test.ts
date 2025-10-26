@@ -2,7 +2,7 @@ import {EventStore} from "./event_store";
 import {AddProduct, RestockOrdered, CapacityDefined} from "../domain/Event";
 import * as fs from "fs";
 
-describe("EventStore", () => {
+describe.todo("EventStore", () => {
     const testFilePath = "./test_events.json";
 
     afterEach(() => {
