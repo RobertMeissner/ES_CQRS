@@ -1,37 +1,76 @@
-import {CapacityDefined, EVENTS, RestockAlreadyOrdered, RestockOrdered, ThresholdReached} from "./domain/Event";
-import {COMMANDS, RestockOrder} from "./domain/Command";
-import {RestockCommandHandler} from "./handlers/restock_command_handler";
-import {RestockSagaEventHandler} from "./handlers/restock_saga_event_handler";
-import {QUERIES} from "./domain/Query";
+import {AddProduct, CapacityDefined, EVENTS, RestockOrdered} from "./domain/Event";
+import {QUERIES, QueryCatalog} from "./domain/Query";
+import {Products, CatalogState} from "./read_models/products";
 
 describe("ReadModel", () => {
-    let _history: EVENTS[] = []
-    let _publish: COMMANDS[] = []
+    let readModel: Products;
+    let result: CatalogState;
 
     beforeEach(() => {
-        _history = []
-        _publish = []
+        readModel = new Products();
+        result = {};
     })
 
     function Given(events: EVENTS[]) {
-        _event_store = new EventStore(events)
-        // persist events
-        // emit event to a queue, this queue triggers the ReadModel
+        readModel = new Products();
+        events.forEach(event => readModel.project(event));
     }
 
     function When_Query(query: QUERIES) {
-
-        // querying the read model
+        result = readModel.handle(query);
     }
 
-    function Then(expected_commands: COMMANDS[]) {
-        expect(_publish).toMatchObject(expected_commands)
+    function Then(expected_catalog: CatalogState) {
+        expect(result).toMatchObject(expected_catalog);
     }
 
-    test.skip("Yield available products", () => {
-        Given([new AddProduct("broccoli"), new AddProduct("lasagne"), new CapacityDefined("broccoli", 100), new CapacityDefined("lasagne", 100), new RestockOrder("lasagne", 50)])
-        When_Query(new QueryForCatalog())
-        Then({"lasagne": 50, "broccoli": 0})
+    test("Yield available products", () => {
+        Given([
+            new AddProduct("broccoli"),
+            new AddProduct("lasagne"),
+            new CapacityDefined("broccoli", 100),
+            new CapacityDefined("lasagne", 100),
+            new RestockOrdered("lasagne", 50)
+        ]);
+        When_Query(new QueryCatalog());
+        Then({"lasagne": 50, "broccoli": 0});
+    });
 
-    })
+    test("Empty catalog when no products added", () => {
+        Given([]);
+        When_Query(new QueryCatalog());
+        Then({});
+    });
+
+    test("Multiple restocks accumulate", () => {
+        Given([
+            new AddProduct("pizza"),
+            new RestockOrdered("pizza", 10),
+            new RestockOrdered("pizza", 20),
+            new RestockOrdered("pizza", 15)
+        ]);
+        When_Query(new QueryCatalog());
+        Then({"pizza": 45});
+    });
+
+    test("Product starts at zero without restock", () => {
+        Given([new AddProduct("salad")]);
+        When_Query(new QueryCatalog());
+        Then({"salad": 0});
+    });
+
+    test("Restock without product creates entry", () => {
+        Given([new RestockOrdered("unknown", 100)]);
+        When_Query(new QueryCatalog());
+        Then({"unknown": 100});
+    });
+
+    test("Returns immutable copy of state", () => {
+        Given([new AddProduct("test"), new RestockOrdered("test", 10)]);
+        When_Query(new QueryCatalog());
+        const firstResult = result;
+        When_Query(new QueryCatalog());
+        expect(firstResult).not.toBe(result);
+        expect(firstResult).toEqual(result);
+    });
 })

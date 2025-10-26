@@ -1,0 +1,22 @@
+[
+  {
+    "type": "restock_ordered",
+    "id": "restock_ordered",
+    "recorded_at": "2025-10-21T13:40:54.982Z",
+    "product_id": "lasa",
+    "quantity": 3
+  },
+  {
+    "type": "add_product",
+    "id": "add_product",
+    "recorded_at": "2025-10-21T13:41:11.509Z",
+    "product_id": "lasagne"
+  },
+  {
+    "type": "restock_ordered",
+    "id": "restock_ordered",
+    "recorded_at": "2025-10-21T13:41:16.685Z",
+    "product_id": "lasagne",
+    "quantity": 2342
+  }
+]

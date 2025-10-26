@@ -1,19 +1,10 @@
 import {EVENTS} from "./Event";
+import {QUERIES} from "./Query";
 
-abstract class ReadModel {
-    abstract read(): any;
-}
+export abstract class ReadModel<T = any> {
+    abstract _state: T;
 
-import {COMMANDS} from "./Command";
+    abstract handle(query: QUERIES): any;
 
-export abstract class ReadModel {
-    abstract _history: EVENTS[];
-    abstract _history: EVENTS[];
-    abstract lambda: respond; // called by handle to emit the result of the query
-
-    abstract handle(command: COMMANDS): void;
-
-    abstract project(event: EVENTS): void // like Apply in the Aggregates or Saga's
-
-    // calls respond
+    abstract project(event: EVENTS): void;
 }
