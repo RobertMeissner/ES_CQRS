@@ -104,7 +104,7 @@ describe("RestockSaga", () => {
             expect(actual).toMatchObject({
                 eventType: expected.eventType,
                 messageType: expected.messageType,
-                ...(actual instanceof RestockOrder && {
+                ...(actual instanceof RestockOrder && expected instanceof RestockOrder && {
                     quantity: expected.quantity
                 })
             })
