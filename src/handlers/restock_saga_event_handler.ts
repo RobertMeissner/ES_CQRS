@@ -1,24 +1,26 @@
-import {EVENTS, ThresholdReached} from "../domain/Event";
+import {DomainEvent, ThresholdReached} from "../domain/Event";
 import {EventHandler} from "../domain/event_handler";
-import {COMMANDS} from "../domain/Command";
+import {DomainCommand} from "../domain/Command";
 import {RestockSaga, RestockSagaState} from "../saga/RestockSaga";
+import {CommandPublish} from "../types/types";
 
 export class RestockSagaEventHandler implements EventHandler {
-    private _history: EVENTS[];
-    public _emit: COMMANDS[];
+    private _history: DomainEvent[];
 
-    constructor(events: EVENTS[]) {
+    constructor(events: DomainEvent[], private _sendCallback: CommandPublish) {
         this._history = events
-        this._emit = []
     }
 
-    handle(event: EVENTS) {
+    send(...commands: DomainCommand[]): void {
+        this._sendCallback(...commands);  // Delegate to private callback
+    }
+
+    handle(event: DomainEvent) {
         if (event instanceof ThresholdReached) {
             const state = new RestockSagaState(this._history)
             const restockSaga = new RestockSaga(state);
             const commands = restockSaga.handle(event)
-            this._emit.push(...commands)
+            this.send(...commands)
         }
-        this._emit.concat([])
     }
 }

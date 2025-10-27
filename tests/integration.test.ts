@@ -1,11 +1,12 @@
-import {EventStore} from "./infrastructure/event_store";
-import {Products} from "./read_models/products";
-import {AddProduct, RestockOrdered, CapacityDefined, ThresholdReached} from "./domain/Event";
-import {QueryCatalog} from "./domain/Query";
-import {RestockCommandHandler} from "./handlers/restock_command_handler";
-import {RestockSagaEventHandler} from "./handlers/restock_saga_event_handler";
-import {RestockOrder} from "./domain/Command";
+import {EventStore} from "../src/infrastructure/event_store";
+import {Products} from "../src/read_models/products";
+import {AddProduct, RestockOrdered, CapacityDefined, ThresholdReached} from "../src/domain/Event";
+import {QueryCatalog} from "../src/domain/Query";
+import {RestockCommandHandler} from "../src/handlers/restock_command_handler";
+import {RestockSagaEventHandler} from "../src/handlers/restock_saga_event_handler";
+import {RestockOrder} from "../src/domain/Command";
 import * as fs from "fs";
+import {describe, afterEach, test, expect} from "bun:test"
 
 describe.todo("Integration Tests", () => {
     const testFilePath = "./integration_test_events.json";

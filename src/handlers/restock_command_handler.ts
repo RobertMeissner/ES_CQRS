@@ -1,24 +1,25 @@
 import {CommandHandler} from "../domain/command_handler";
-import {EVENTS} from "../domain/Event";
-import {COMMANDS, RestockOrder} from "../domain/Command";
+import {DomainEvent} from "../domain/Event";
+import {DomainCommand, RestockOrder} from "../domain/Command";
 import {Restocker, RestockerState} from "../aggregates/Restocker";
+import {EventPublish} from "../types/types";
 
 export class RestockCommandHandler implements CommandHandler {
-    private _history: EVENTS[];
-    public _publish: EVENTS[];
 
-    constructor(events: EVENTS[]) {
-        this._history = events
-        this._publish = []
+    constructor(private history: DomainEvent[], private _publishCallback: EventPublish) {
     }
 
-    handle(command: COMMANDS) {
+    publish(...events: DomainEvent[]): void {
+        this._publishCallback(...events);  // Delegate to private callback
+    }
+
+    handle = (command: DomainCommand)=> {
         if (command instanceof RestockOrder) {
-            const state = new RestockerState(this._history)
+            const state = new RestockerState(this.history)
             const restocker = new Restocker(state);
             const events = restocker.handle(command)
-            this._publish.push(...events)
+            this.publish(...events)
         }
-        this._publish.concat([])
     }
+
 }

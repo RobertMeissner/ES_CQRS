@@ -1,6 +1,7 @@
-import {EventStore} from "./event_store";
-import {AddProduct, RestockOrdered, CapacityDefined} from "../domain/Event";
+import {EventStore} from "../../src/infrastructure/event_store";
+import {AddProduct, RestockOrdered, CapacityDefined} from "../../src/domain/Event";
 import * as fs from "fs";
+import {describe, beforeEach, afterEach, expect, test} from "bun:test";
 
 describe.todo("EventStore", () => {
     const testFilePath = "./test_events.json";

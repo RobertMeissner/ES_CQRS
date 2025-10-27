@@ -1,13 +1,13 @@
 import {ReadModel} from "../domain/read_model";
-import {EVENTS, AddProduct, RestockOrdered} from "../domain/Event";
-import {QUERIES, QueryCatalog} from "../domain/Query";
+import {DomainEvent, AddProduct, RestockOrdered} from "../domain/Event";
+import {DomainQuery, QueryCatalog} from "../domain/Query";
 
 export type CatalogState = Record<string, number>;
 
 export class Products extends ReadModel<CatalogState> {
     _state: CatalogState = {};
 
-    project(event: EVENTS): void {
+    project(event: DomainEvent): void {
         if (event instanceof AddProduct) {
             this._state[event.product_id] = 0;
         } else if (event instanceof RestockOrdered) {
@@ -15,7 +15,7 @@ export class Products extends ReadModel<CatalogState> {
         }
     }
 
-    handle(query: QUERIES): CatalogState {
+    handle(query: DomainQuery): CatalogState {
         if (query instanceof QueryCatalog) {
             return {...this._state};
         }

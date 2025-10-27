@@ -18,7 +18,7 @@ const events = [
 events.forEach(event => {
     eventStore.append(event);
     products.project(event);
-    console.log(`Event applied: ${event.type}`);
+    console.log(`Event applied: ${event.messageType}`);
 });
 
 const catalog = products.handle(new QueryCatalog());

@@ -1,13 +1,13 @@
-import {COMMANDS, RestockOrder} from "../domain/Command";
-import {EVENTS, RestockAlreadyOrdered, RestockOrdered} from "../domain/Event";
+import {DomainCommand, RestockOrder} from "../domain/Command";
+import {DomainEvent, RestockAlreadyOrdered, RestockOrdered} from "../domain/Event";
 import {Aggregate} from "../domain/aggregate";
 
 export class RestockerState {
     quantity: number = 0;
 
-    constructor(events: EVENTS[]) {
+    constructor(events: DomainEvent[]) {
         for (const event of events) {
-            if (event.type === RestockOrdered.type) {
+            if (event instanceof RestockOrdered) {
                 this.quantity += event.quantity;
             }
         }
@@ -22,7 +22,7 @@ export class Restocker implements Aggregate {
         this.state = state;
     }
 
-    handle(command: COMMANDS): EVENTS[] {
+    handle(command: DomainCommand): DomainEvent[] {
         if (command instanceof RestockOrder) {
             if (this.state.quantity <= 100) {
                 return [new RestockOrdered(command.quantity)];

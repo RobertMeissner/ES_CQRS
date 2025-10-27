@@ -1,6 +1,6 @@
-import {AddProduct, CapacityDefined, EVENTS, RestockOrdered} from "./domain/Event";
-import {QUERIES, QueryCatalog} from "./domain/Query";
-import {Products, CatalogState} from "./read_models/products";
+import {AddProduct, CapacityDefined, DomainEvent, RestockOrdered} from "../../src/domain/Event";
+import {DomainQuery, QueryCatalog} from "../../src/domain/Query";
+import {Products, CatalogState} from "../../src/read_models/products";
 import {describe, beforeEach, test, expect} from "bun:test";
 
 describe.todo("ReadModel", () => {
@@ -12,12 +12,12 @@ describe.todo("ReadModel", () => {
         result = {};
     })
 
-    function Given(events: EVENTS[]) {
+    function Given(events: DomainEvent[]) {
         readModel = new Products();
         events.forEach(event => readModel.project(event));
     }
 
-    function When_Query(query: QUERIES) {
+    function When_Query(query: DomainQuery) {
         result = readModel.handle(query);
     }
 

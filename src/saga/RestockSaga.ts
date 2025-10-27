@@ -1,14 +1,14 @@
-import {COMMANDS, RestockOrder} from "../domain/Command";
-import {CapacityDefined, EVENTS, RestockAlreadyOrdered, RestockOrdered, ThresholdReached} from "../domain/Event";
+import {DomainCommand, RestockOrder} from "../domain/Command";
+import {CapacityDefined, DomainEvent, ThresholdReached} from "../domain/Event";
 import {Saga} from "../domain/saga";
 
 export class RestockSagaState {
     quantity: number = 0;
     capacity: number = 0;
 
-    constructor(events: EVENTS[]) {
+    constructor(events: DomainEvent[]) {
         for (const event of events) {
-            if (event.type === CapacityDefined.type) {
+            if (event instanceof CapacityDefined) {
                 this.capacity = event.capacity;
             }
         }
@@ -23,7 +23,7 @@ export class RestockSaga implements Saga {
         this.state = state;
     }
 
-    handle(event: EVENTS): COMMANDS[] {
+    handle(event: DomainEvent): DomainCommand[] {
         if (event instanceof ThresholdReached) {
             // this.state.expeddreorder =
             // emit

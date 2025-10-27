@@ -1,29 +1,33 @@
-import {CapacityDefined, EVENTS, RestockAlreadyOrdered, RestockOrdered, ThresholdReached} from "./domain/Event";
-import {COMMANDS, RestockOrder} from "./domain/Command";
-import {RestockCommandHandler} from "./handlers/restock_command_handler";
-import {RestockSagaEventHandler} from "./handlers/restock_saga_event_handler";
+import {CapacityDefined, DomainEvent, RestockAlreadyOrdered, RestockOrdered, ThresholdReached} from "../../src/domain/Event";
+import {DomainCommand, RestockOrder} from "../../src/domain/Command";
+import {RestockCommandHandler} from "../../src/handlers/restock_command_handler";
+import {RestockSagaEventHandler} from "../../src/handlers/restock_saga_event_handler";
+import {describe, beforeEach, expect, test} from "bun:test";
 
-describe("restocker", () => {
-    let _history: EVENTS[] = []
-    let _publish: EVENTS[] = []
+describe("Restock Command handler", () => {
+    let _history: DomainEvent[] = []
+    let _publish: DomainEvent[] = []
 
     beforeEach(() => {
         _history = []
         _publish = []
     })
 
-    function Given(events: EVENTS[]) {
+    function publish(...params: DomainEvent[]): void {
+        _publish.push(...params)
+    }
+
+    function Given(events: DomainEvent[]) {
         _history = events
     }
 
-    function When(command: COMMANDS) {
+    function When(command: DomainCommand) {
 
-        const command_Handlers = new RestockCommandHandler(_history)
+        const command_Handlers = new RestockCommandHandler(_history, publish)
         command_Handlers.handle(command)
-        _publish = command_Handlers._publish
     }
 
-    function Then(expected_events: EVENTS[]) {
+    function Then(expected_events: DomainEvent[]) {
         expect(_publish).toMatchObject(expected_events)
     }
 
@@ -68,31 +72,47 @@ describe("restocker", () => {
         Then([new RestockAlreadyOrdered()])
     })
 });
-describe("RestockSaga", ()=> {
-    let _history: EVENTS[] = []
-    let _publish: COMMANDS[] = []
+
+describe("RestockSaga", () => {
+    let _history: DomainEvent[] = []
+    let _publish: DomainCommand[] = []
 
     beforeEach(() => {
         _history = []
         _publish = []
     })
 
-    function Given(events: EVENTS[]) {
+    function send(...params: DomainCommand[]): void {
+        _publish.push(...params)
+    }
+
+    function Given(events: DomainEvent[]) {
         _history = events
     }
 
-    function When(event: EVENTS) {
+    function When(event: DomainEvent) {
 
-        const eventHandler = new RestockSagaEventHandler(_history)
+        const eventHandler = new RestockSagaEventHandler(_history, send)
         eventHandler.handle(event)
-        _publish = eventHandler._emit
     }
 
-    function Then(expected_commands: COMMANDS[]) {
-        expect(_publish).toMatchObject(expected_commands)
+    function Then(expected_commands: DomainCommand[]) {
+        expect(_publish).toHaveLength(expected_commands.length)
+
+        _publish.forEach((actual, index) => {
+            const expected = expected_commands[index];
+            expect(actual).toMatchObject({
+                eventType: expected.eventType,
+                messageType: expected.messageType,
+                ...(actual instanceof RestockOrder && {
+                    quantity: expected.quantity
+                })
+            })
+        })
     }
+
     test("Emits OrderRestock when threshold is reached", () => {
-        Given([new CapacityDefined("dummy",100)])
+        Given([new CapacityDefined("dummy", 100)])
         When(new ThresholdReached(20))
         Then([new RestockOrder(80)])
 
@@ -121,34 +141,38 @@ describe("RestockSaga", ()=> {
         Then([new RestockOrder(999)])
     })
 })
-describe("ThresholdReached to RestockOrdered", ()=> {
-    let _history: EVENTS[] = []
-    let _publish: EVENTS[] = []
+
+
+describe("ThresholdReached to RestockOrdered", () => {
+    let _history: DomainEvent[] = []
+    let _publish: DomainEvent[] = []
 
     beforeEach(() => {
         _history = []
         _publish = []
     })
 
-    function Given(events: EVENTS[]) {
+    function publish(...params: DomainEvent[]): void {
+        _publish.push(...params)
+    }
+
+    function Given(events: DomainEvent[]) {
         _history = events
     }
 
-    function Then(expected_events: EVENTS[]) {
+    function Then(expected_events: DomainEvent[]) {
         expect(_publish).toMatchObject(expected_events)
     }
 
-    function When(event: EVENTS) {
+    function When(event: DomainEvent) {
 
-        const eventHandler = new RestockSagaEventHandler(_history)
-        const commandHandler = new RestockCommandHandler(_history)
+        const commandHandler = new RestockCommandHandler(_history, publish)
+        const eventHandler = new RestockSagaEventHandler(_history, commandHandler.handle)
         eventHandler.handle(event)
-        commandHandler.handle(eventHandler._emit[0])
-        _publish = commandHandler._publish
     }
 
     test("Emits RestockOrdered when threshold is reached", () => {
-        Given([new CapacityDefined("dummy",380)])
+        Given([new CapacityDefined("dummy", 380)])
         When(new ThresholdReached(35))
         Then([new RestockOrdered(345)])
     })

@@ -1,6 +1,6 @@
-import {COMMANDS} from "./Command";
-import {EVENTS} from "./Event";
+import {DomainCommand} from "./Command";
+import {DomainEvent} from "./Event";
 
 export abstract class Aggregate {
-    abstract handle(command: COMMANDS): EVENTS[];
+    abstract handle(command: DomainCommand): DomainEvent[];
 }

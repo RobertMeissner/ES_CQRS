@@ -1,6 +1,10 @@
-import {COMMANDS} from "./Command";
+import {DomainCommand} from "./Command";
+import {DomainEvent} from "./Event";
+import {EventPublish} from "../types/types";
 
 export abstract class CommandHandler {
 
-    abstract handle(command: COMMANDS): void;
+    abstract handle(command: DomainCommand, publish: (...param: DomainEvent[]) => void): void;
+
+    abstract publish: EventPublish
 }

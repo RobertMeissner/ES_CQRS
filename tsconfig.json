@@ -22,6 +22,5 @@
   },
   "include": [
     "src",
-    "node_modules/bun-types/test-globals.d.ts"
   ]
 }

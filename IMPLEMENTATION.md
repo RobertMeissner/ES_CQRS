@@ -37,7 +37,7 @@ npm test
 
 **Test Coverage:** 47 tests across 4 test suites
 - `read_model.test.ts` - Read model projections (7 tests)
-- `index.test.ts` - Command handlers and sagas (17 tests)
+- `restocker.test.ts` - Command handlers and sagas (17 tests)
 - `event_store.test.ts` - Event store persistence (13 tests)
 - `integration.test.ts` - End-to-end integration (10 tests)
 

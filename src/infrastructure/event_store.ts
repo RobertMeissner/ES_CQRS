@@ -1,21 +1,21 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {EVENTS, AddProduct, RestockOrdered, CapacityDefined, ThresholdReached, RestockAlreadyOrdered} from "../domain/Event";
+import {DomainEvent, AddProduct, RestockOrdered, CapacityDefined, ThresholdReached, RestockAlreadyOrdered} from "../domain/Event";
 
 export class EventStore {
-    private events: EVENTS[] = [];
+    private events: DomainEvent[] = [];
     private filePath: string;
 
-    constructor(initialEvents: EVENTS[] = [], filePath: string = './events.json') {
+    constructor(initialEvents: DomainEvent[] = [], filePath: string = './events.json') {
         this.filePath = filePath;
         this.events = [...initialEvents];
     }
 
-    append(event: EVENTS): void {
+    append(event: DomainEvent): void {
         this.events.push(event);
     }
 
-    getAll(): EVENTS[] {
+    getAll(): DomainEvent[] {
         return [...this.events];
     }
 
@@ -25,7 +25,7 @@ export class EventStore {
 
     save(): void {
         const data = this.events.map(event => ({
-            type: event.type,
+            type: event.messageType,
             id: event.id,
             recorded_at: event.recorded_at,
             ...event
@@ -42,7 +42,7 @@ export class EventStore {
         this.events = data.map((item: any) => this.deserializeEvent(item));
     }
 
-    private deserializeEvent(data: any): EVENTS {
+    private deserializeEvent(data: any): DomainEvent {
         switch (data.type) {
             case 'add_product':
                 return Object.assign(new AddProduct(data.product_id), data);

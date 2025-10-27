@@ -1,10 +1,10 @@
-import {EVENTS} from "./Event";
-import {QUERIES} from "./Query";
+import {DomainEvent} from "./Event";
+import {DomainQuery} from "./Query";
 
 export abstract class ReadModel<T = any> {
     abstract _state: T;
 
-    abstract handle(query: QUERIES): any;
+    abstract handle(query: DomainQuery): any;
 
-    abstract project(event: EVENTS): void;
+    abstract project(event: DomainEvent): void;
 }
